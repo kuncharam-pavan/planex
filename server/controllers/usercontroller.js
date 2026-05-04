@@ -30,7 +30,7 @@ exports.register = async (req, res, next) => {
         // console.log(name,email,password,role)
         const user_data = await user_model.findOne({ email: email })
         if (user_data) {
-            return res.json({
+            return res.status(400).json({
                 success: false,
                 message: "email alredy exists",
                 error: {
@@ -85,7 +85,7 @@ exports.signupOrganarizer = async (req, res,next) => {
         // console.log(name,email,password)
         const user_data = await user_model.findOne({ email: email })
         if (user_data) {
-            return res.json({
+            return res.status(400).json({
                 success: false,
                 message: "email alredy exists",
                 error: {
@@ -146,12 +146,12 @@ exports.login = async (req, res,next) => {
         const data = await user_model.findOne({ email: email })
         // console.log(data)
         if (!data) {
-            return res.send("your are not yet registered")
+            return res.status(404).json({ msg: "User not found" })
         }
        const comparing = await bcrypt.compare(password,data.password)
     //    console.log(comparing)
        if(!comparing){
-            return res.send("invalid username/password")
+            return res.status(401).json({ msg: "Invalid username/password" })
        }
 
        else{
@@ -202,14 +202,14 @@ exports.updateprofile = async (req, res,next) => {
         // this if stmt is used to check after updating tha data then it will be shown whether it is update 
         // or not first login then come and check update data once more the n it will show alredy exists
         if(await user_model.findOne({email:email})){
-            return res.json({msg:"email already exists",data:email})
+             return res.status(400).json({msg:"email already exists",data:email})
         }
         let file;
         if(req.file){
             if(req.file.mimetype.startsWith("image/")){
 
                 if (!fs.existsSync(req.file.path)) {
-                    return res.json({ msg: "File missing before upload" });
+                     return res.status(400).json({ msg: "File missing before upload" });
         }
             
             // cloudinary
@@ -223,7 +223,7 @@ exports.updateprofile = async (req, res,next) => {
             fs.unlinkSync(req.file.path)
         }
         else{
-            return res.json({success:false,
+            return res.status(400).json({success:false,
             message: "it will be accept only images",
             error: {
                 code: "it will be accept only images",
@@ -234,7 +234,7 @@ exports.updateprofile = async (req, res,next) => {
         
         }
         else{
-            return res.json({success:false,
+            return res.status(400).json({success:false,
             message: "your not uploaded the file ",
             error: {
                 code: "your not uploaded the file",
